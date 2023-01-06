@@ -1,5 +1,6 @@
 package com.cieep.pmdm_c_08_retrofit_ejercicio;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -7,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.cieep.pmdm_c_08_retrofit_ejercicio.adapters.UsersAdapter;
 import com.cieep.pmdm_c_08_retrofit_ejercicio.conexiones.ApiConexiones;
@@ -16,6 +18,7 @@ import com.cieep.pmdm_c_08_retrofit_ejercicio.modelos.Respuesta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -26,6 +29,8 @@ import retrofit2.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
 
+
+    private int page = 1;
 
     private RecyclerView contenedor;
     private UsersAdapter adapter;
@@ -56,6 +61,16 @@ public class MainActivity extends AppCompatActivity {
         retrofit = RetrofitObject.getConexion();
         api = retrofit.create(ApiConexiones.class);
 
+        contenedor.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                if (!recyclerView.canScrollVertically(1)) {
+                    cargarUsers(String.valueOf("2"));
+                    Toast.makeText(MainActivity.this, "FIN SCROLL", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
         cargarUsers("1");
 
     }
@@ -68,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<Respuesta> call, Response<Respuesta> response) {
                 if (response.code() == HttpsURLConnection.HTTP_OK && response.body() != null) {
                     adapter.notifyItemRangeRemoved(0, users.size());
-                    users.clear();
+                   // users.clear();
                     users.addAll(response.body().getData());
                     adapter.notifyItemRangeInserted(0, users.size());
                     if (response.body().getPage() == 1) {
@@ -79,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
                         btnPage1.setEnabled(true);
                         btnPage2.setEnabled(false);
                     }
+                    MainActivity.this.page++;
                 }
             }
 
