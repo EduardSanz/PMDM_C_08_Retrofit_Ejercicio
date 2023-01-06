@@ -64,9 +64,9 @@ public class MainActivity extends AppCompatActivity {
         contenedor.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                if (!recyclerView.canScrollVertically(1)) {
+                if (!recyclerView.canScrollVertically(1) && page <= 2) {
                     cargarUsers(String.valueOf("2"));
-                    Toast.makeText(MainActivity.this, "FIN SCROLL", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Pagina cargada: "+page, Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -82,10 +82,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Respuesta> call, Response<Respuesta> response) {
                 if (response.code() == HttpsURLConnection.HTTP_OK && response.body() != null) {
-                    adapter.notifyItemRangeRemoved(0, users.size());
+                    // adapter.notifyItemRangeRemoved(0, users.size());
                    // users.clear();
+                    int actual = users.size();
                     users.addAll(response.body().getData());
-                    adapter.notifyItemRangeInserted(0, users.size());
+                    adapter.notifyItemRangeInserted(actual, users.size());
                     if (response.body().getPage() == 1) {
                         btnPage1.setEnabled(false);
                         btnPage2.setEnabled(true);
